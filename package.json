@@ -1,0 +1,51 @@
+{
+  "name": "panda-closet",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22.22.0"
+  },
+  "scripts": {
+    "dev": "concurrently -k -n frontend,backend \"npm:dev:frontend\" \"npm:dev:backend\"",
+    "dev:all": "concurrently -k -n frontend,backend \"npm:dev:frontend\" \"npm:dev:backend\"",
+    "dev:frontend": "vite --host 0.0.0.0 --port 4173",
+    "dev:backend": "node backend/server.js",
+    "cf:dev": "npm run build && wrangler dev --local --port 8787",
+    "cf:db:apply": "wrangler d1 execute panda-closet --file=./database/schema.sql --local",
+    "cf:db:apply:remote": "wrangler d1 execute panda-closet --file=./database/schema.sql --remote",
+    "build": "vite build",
+    "typecheck": "tsc --noEmit",
+    "preview": "vite preview",
+    "start": "node backend/server.js",
+    "deploy": "npm run build && wrangler deploy",
+    "create-admin": "node backend/server.js --create-admin",
+    "format": "oxfmt"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.0",
+    "better-sqlite3": "^12.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-session": "^1.18.1",
+    "multer": "^2.4.0",
+    "nodemailer": "^10.0.14",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-router": "^8.4.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.0.0",
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^6.0.0",
+    "concurrently": "^9.2.0",
+    "oxfmt": "^0.2.0",
+    "tailwindcss": "^4.0.0",
+    "typescript": "^5.7.0",
+    "vite": "^8.0.5",
+    "wrangler": "^4.147.0"
+  }
+}

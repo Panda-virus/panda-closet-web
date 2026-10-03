@@ -1,0 +1,108 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=Inter:wght@300;400;500;600;700&display=swap');
+@import 'tailwindcss';
+
+@theme {
+  --font-serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+
+  --color-cream: #F7F3EE;
+  --color-cream-dark: #EDE6DC;
+  --color-brown: #6B4F3A;
+  --color-brown-light: #8B6B52;
+  --color-beige: #C9B8A5;
+  --color-muted: #8C8177;
+  --color-light: #E8DED3;
+  --color-ink: #111111;
+  --color-ink-soft: #2C2C2C;
+  --color-ink-muted: #444444;
+  --color-whatsapp: #25D366;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: #F7F3EE;
+  color: #111111;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #C9B8A5;
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #8C8177;
+}
+
+/* Typography utilities */
+.font-display {
+  font-family: var(--font-serif);
+}
+
+/* Hover image zoom */
+.img-zoom {
+  overflow: hidden;
+}
+.img-zoom img {
+  transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.img-zoom:hover img {
+  transform: scale(1.05);
+}
+
+/* Live wallpaper: slow, infinite pan + zoom (Ken Burns) */
+@keyframes wallpaperPan {
+  0% {
+    transform: scale(1.05) translate3d(-1.5%, -1.5%, 0);
+  }
+  50% {
+    transform: scale(1.18) translate3d(1.5%, 1.5%, 0);
+  }
+  100% {
+    transform: scale(1.05) translate3d(-1.5%, -1.5%, 0);
+  }
+}
+
+.animate-wallpaper {
+  animation: wallpaperPan 28s ease-in-out infinite;
+  transform-origin: center top;
+  will-change: transform;
+}
+
+/* Fade-up animation */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.6s ease forwards;
+}
+
+/* Letter spacing utility */
+.tracking-widest-custom {
+  letter-spacing: 0.2em;
+}
+
+/* Focus styles */
+*:focus-visible {
+  outline: 2px solid #6B4F3A;
+  outline-offset: 2px;
+}
