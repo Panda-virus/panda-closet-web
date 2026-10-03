@@ -132,7 +132,7 @@ const ensureDefaultSettings = () => {
 
       "Lilongwe, Malawi",
 
-      "Hello Panda Closet, I would like to enquire about ordering this piece.",
+      "Hello Panda Closet, I would like to see what you have available in your collection.",
 
       "MWK",
 
@@ -643,7 +643,7 @@ const getPublicSettings = () => {
       location: "",
 
       defaultWhatsappMessage:
-        "Hello Panda Closet, I would like to enquire about ordering this piece.",
+        "Hello Panda Closet, I would like to see what you have available in your collection.",
 
       currency: "MWK",
 
@@ -673,7 +673,7 @@ const getPublicSettings = () => {
 
     defaultWhatsappMessage:
       row.default_whatsapp_message ||
-      "Hello Panda Closet, I would like to enquire about ordering this piece.",
+      "Hello Panda Closet, I would like to see what you have available in your collection.",
 
     currency: row.currency || "MWK",
 
@@ -2125,7 +2125,7 @@ app.put("/api/admin/settings", requireAdmin, (req, res) => {
     payload.location || "",
 
     payload.defaultWhatsappMessage ||
-      "Hello Panda Closet, I would like to enquire about ordering this piece.",
+      "Hello Panda Closet, I would like to see what you have available in your collection.",
 
     payload.currency || "MWK",
 

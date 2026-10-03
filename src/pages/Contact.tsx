@@ -5,16 +5,14 @@
  */
 import { useState } from "react"
 import { useStore } from "../context/store"
-import { buildWhatsAppUrl, customizeWhatsAppMessage } from "../lib/utils"
+import { buildWhatsAppUrl } from "../lib/utils"
 import { WhatsAppIcon } from "../components/layout/Navbar"
 
 export default function Contact() {
   const { settings, addMessage } = useStore()
   const waUrl = buildWhatsAppUrl(
     settings.whatsappNumber,
-    customizeWhatsAppMessage(settings.defaultWhatsappMessage, {
-      enquiryType: "I would like to get in touch with Panda Closet.",
-    }),
+    settings.defaultWhatsappMessage,
   )
 
   const [form, setForm] = useState({

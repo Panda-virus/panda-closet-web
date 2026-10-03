@@ -20,6 +20,10 @@ import { BUSINESS_WHATSAPP_NUMBER } from "../lib/utils"
 const STORAGE_KEYS = {
   admin: "panda_admin",
 }
+const LEGACY_WHATSAPP_DEFAULTS = new Set([
+  "Hello Panda Closet, I would like to enquire about ordering this piece.",
+  "Hello Panda Closet, I would like to enquire about your clothing collection.",
+])
 
 function load<T>(key: string, fallback: T): T {
   try {
@@ -196,10 +200,17 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       const response = await fetch(apiUrl("/api/settings/public"))
       if (!response.ok) throw new Error("Unable to load business settings.")
       const remoteSettings: Partial<Settings> = await response.json()
+      const savedWhatsappMessage = remoteSettings.defaultWhatsappMessage?.trim()
+      const defaultWhatsappMessage =
+        !savedWhatsappMessage ||
+        LEGACY_WHATSAPP_DEFAULTS.has(savedWhatsappMessage)
+          ? DEFAULT_SETTINGS.defaultWhatsappMessage
+          : savedWhatsappMessage
       setSettings({
         ...DEFAULT_SETTINGS,
         ...remoteSettings,
         whatsappNumber: BUSINESS_WHATSAPP_NUMBER,
+        defaultWhatsappMessage,
       })
       return remoteSettings
     } catch (error) {

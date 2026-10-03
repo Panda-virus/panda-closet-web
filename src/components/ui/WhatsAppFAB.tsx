@@ -4,15 +4,13 @@
  * Note: This is a customer convenience component rather than a core business logic file.
  */
 import { useStore } from "../../context/store"
-import { buildWhatsAppUrl, customizeWhatsAppMessage } from "../../lib/utils"
+import { buildWhatsAppUrl } from "../../lib/utils"
 
 export default function WhatsAppFAB() {
   const { settings } = useStore()
   const url = buildWhatsAppUrl(
     settings.whatsappNumber,
-    customizeWhatsAppMessage(settings.defaultWhatsappMessage, {
-      enquiryType: "I would like to contact Panda Closet on WhatsApp.",
-    }),
+    settings.defaultWhatsappMessage,
   )
 
   return (

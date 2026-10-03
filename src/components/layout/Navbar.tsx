@@ -6,7 +6,7 @@
 import { useState, useEffect } from "react"
 import { Link, useLocation } from "react-router"
 import { useStore } from "../../context/store"
-import { buildWhatsAppUrl, customizeWhatsAppMessage } from "../../lib/utils"
+import { buildWhatsAppUrl } from "../../lib/utils"
 
 export default function Navbar() {
   const { settings } = useStore()
@@ -19,9 +19,7 @@ export default function Navbar() {
 
   const waUrl = buildWhatsAppUrl(
     settings.whatsappNumber,
-    customizeWhatsAppMessage(settings.defaultWhatsappMessage, {
-      enquiryType: "I would like to enquire about your clothing collection.",
-    }),
+    settings.defaultWhatsappMessage,
   )
 
   const navLinks = [

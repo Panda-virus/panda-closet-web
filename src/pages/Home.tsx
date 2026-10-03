@@ -16,9 +16,7 @@ export default function Home() {
     .slice(0, 6)
   const waUrl = buildWhatsAppUrl(
     settings.whatsappNumber,
-    customizeWhatsAppMessage(settings.defaultWhatsappMessage, {
-      enquiryType: "I would like to enquire about your clothing collection.",
-    }),
+    settings.defaultWhatsappMessage,
   )
   const waMadeToOrder = buildWhatsAppUrl(
     settings.whatsappNumber,

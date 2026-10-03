@@ -470,7 +470,7 @@ export default {
 
             defaultWhatsappMessage:
               payload.default_whatsapp_message ||
-              "Hello Panda Closet, I would like to enquire about ordering this piece.",
+              "Hello Panda Closet, I would like to see what you have available in your collection.",
 
             currency: payload.currency || "MWK",
 
@@ -1811,7 +1811,7 @@ export default {
 
             sanitizeString(
               payload.defaultWhatsappMessage,
-              "Hello Panda Closet, I would like to enquire about your clothing collection.",
+              "Hello Panda Closet, I would like to see what you have available in your collection.",
             ),
 
             sanitizeString(payload.currency, "MWK"),

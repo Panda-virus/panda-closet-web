@@ -5,16 +5,14 @@
  */
 import { Link } from "react-router"
 import { useStore } from "../../context/store"
-import { buildWhatsAppUrl, customizeWhatsAppMessage } from "../../lib/utils"
+import { buildWhatsAppUrl } from "../../lib/utils"
 import { WhatsAppIcon } from "./Navbar"
 
 export default function Footer() {
   const { settings } = useStore()
   const waUrl = buildWhatsAppUrl(
     settings.whatsappNumber,
-    customizeWhatsAppMessage(settings.defaultWhatsappMessage, {
-      enquiryType: "I would like to contact Panda Closet on WhatsApp.",
-    }),
+    settings.defaultWhatsappMessage,
   )
   const year = new Date().getFullYear()
 

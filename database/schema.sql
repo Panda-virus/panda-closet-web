@@ -117,7 +117,7 @@ CREATE TABLE IF NOT EXISTS settings (
   logo_path TEXT DEFAULT '',
   business_description TEXT DEFAULT '',
   location TEXT DEFAULT '',
-  default_whatsapp_message TEXT DEFAULT 'Hello Panda Closet, I would like to enquire about ordering this piece.',
+  default_whatsapp_message TEXT DEFAULT 'Hello Panda Closet, I would like to see what you have available in your collection.',
   currency TEXT DEFAULT 'MWK',
   currency_symbol TEXT DEFAULT 'K',
   updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -169,7 +169,7 @@ SELECT
   '',
   'Minimal tailoring, crafted for everyday confidence.',
   'Lilongwe, Malawi',
-  'Hello Panda Closet, I would like to enquire about ordering this piece.',
+  'Hello Panda Closet, I would like to see what you have available in your collection.',
   'MWK',
   'K',
   CURRENT_TIMESTAMP

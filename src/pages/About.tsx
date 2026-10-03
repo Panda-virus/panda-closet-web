@@ -5,16 +5,14 @@
  */
 import { Link } from "react-router"
 import { useStore } from "../context/store"
-import { buildWhatsAppUrl, customizeWhatsAppMessage } from "../lib/utils"
+import { buildWhatsAppUrl } from "../lib/utils"
 import { WhatsAppIcon } from "../components/layout/Navbar"
 
 export default function About() {
   const { settings } = useStore()
   const waUrl = buildWhatsAppUrl(
     settings.whatsappNumber,
-    customizeWhatsAppMessage(settings.defaultWhatsappMessage, {
-      enquiryType: "I would like to learn more about Panda Closet.",
-    }),
+    settings.defaultWhatsappMessage,
   )
 
   return (

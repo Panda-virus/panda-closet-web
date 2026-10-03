@@ -17,7 +17,7 @@ export const DEFAULT_SETTINGS: Settings = {
   tiktokUrl: "",
   location: "",
   defaultWhatsappMessage:
-    "Hello Panda Closet, I would like to enquire about your clothing collection.",
+    "Hello Panda Closet, I would like to see what you have available in your collection.",
   currency: "MWK",
   currencySymbol: "K",
   businessDescription:
