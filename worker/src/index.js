@@ -175,19 +175,6 @@ const getProductImages = async (env, productId) => {
   return result.results.map((row) => row.image_path)
 }
 
-const deleteR2Objects = async (bucket, objectKeys) => {
-  if (!bucket || !objectKeys.length) return
-
-  const results = await Promise.allSettled(
-    objectKeys.map((key) => bucket.delete(key)),
-  )
-  const failures = results.filter((result) => result.status === "rejected").length
-
-  if (failures) {
-    console.error(`[Worker][R2] Cleanup failed for ${failures} object(s).`)
-  }
-}
-
 const getOrCreateCategory = async (env, categoryName) => {
   const name = sanitizeString(categoryName, "Sets")
 
@@ -223,54 +210,41 @@ const replaceProductImages = async (
   productId,
   retainedImages,
   files,
-  previousImages = [],
 ) => {
   const retained = retainedImages.filter(
-    (image) => typeof image === "string" && !image.startsWith("data:"),
+    (image) =>
+      typeof image === "string" &&
+      !image.startsWith("data:") &&
+      !image.startsWith("/api/images/"),
   )
-
-  if (files.length && !env.PRODUCT_IMAGES)
-    throw new Error("Product image storage is not configured.")
 
   if (files.length > 10)
     throw new Error("A maximum of 10 product images can be uploaded.")
 
   for (const file of files) {
     if (
-      file.size > 5 * 1024 * 1024 ||
+      file.size > 1_400_000 ||
       !["image/jpeg", "image/png", "image/webp"].includes(file.type)
     ) {
-      throw new Error("Upload JPG, PNG, or WEBP images up to 5 MB each.")
+      throw new Error("Upload compressed JPG, PNG, or WEBP images under 1.4 MB each.")
     }
   }
 
-  const uploadedImages = []
+  const uploadedImages = await Promise.all(
+    files.map(async (file) => {
+      const bytes = new Uint8Array(await file.arrayBuffer())
+      let binary = ""
 
-  try {
-    for (const file of files) {
-      const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "-")
+      for (let offset = 0; offset < bytes.length; offset += 0x8000) {
+        binary += String.fromCharCode(...bytes.subarray(offset, offset + 0x8000))
+      }
 
-      const objectKey = `products/${productId}/${crypto.randomUUID()}-${safeName}`
-
-      await env.PRODUCT_IMAGES.put(objectKey, file.stream(), {
-        httpMetadata: { contentType: file.type },
-      })
-
-      uploadedImages.push(`/api/images/${objectKey}`)
-    }
-  } catch (error) {
-    await deleteR2Objects(
-      env.PRODUCT_IMAGES,
-      uploadedImages.map((image) => image.slice("/api/images/".length)),
-    )
-
-    throw error
-  }
+      return `data:${file.type};base64,${btoa(binary)}`
+    }),
+  )
 
   const now = new Date().toISOString()
-
   const imagePaths = [...retained, ...uploadedImages]
-
   const statements = [
     env.DB.prepare("DELETE FROM product_images WHERE product_id = ?").bind(
       productId,
@@ -285,28 +259,7 @@ const replaceProductImages = async (
     )
   }
 
-  try {
-    await env.DB.batch(statements)
-  } catch (error) {
-    await deleteR2Objects(
-      env.PRODUCT_IMAGES,
-      uploadedImages.map((image) => image.slice("/api/images/".length)),
-    )
-
-    throw error
-  }
-
-  const removedR2Keys = previousImages
-
-    .filter(
-      (image) => !retained.includes(image) && image.startsWith("/api/images/"),
-    )
-
-    .map((image) => image.slice("/api/images/".length))
-
-  if (removedR2Keys.length && env.PRODUCT_IMAGES) {
-    await deleteR2Objects(env.PRODUCT_IMAGES, removedR2Keys)
-  }
+  await env.DB.batch(statements)
 }
 
 const ensureRateLimit = (requestKey) => {
@@ -453,25 +406,11 @@ export default {
     }
 
     if (url.pathname.startsWith("/api/images/")) {
-      const objectKey = url.pathname.replace("/api/images/", "")
-
-      const object = await env.PRODUCT_IMAGES?.get(objectKey)
-
-      if (!object) {
-        return withCors(
-          json({ success: false, error: "Image not found." }, { status: 404 }),
-          request,
-          env,
-        )
-      }
-
-      const headers = new Headers({
-        "Content-Type": object.httpMetadata?.contentType || "image/jpeg",
-
-        "Cache-Control": "public, max-age=31536000, immutable",
-      })
-
-      return withCors(new Response(object.body, { headers }), request, env)
+      return withCors(
+        json({ success: false, error: "Image not found." }, { status: 404 }),
+        request,
+        env,
+      )
     }
 
     if (url.pathname === "/api/categories") {
@@ -1563,7 +1502,6 @@ export default {
           productId,
           Array.isArray(product.images) ? product.images : previousImages,
           files,
-          previousImages,
         )
 
         return withCors(
@@ -1608,17 +1546,13 @@ export default {
             env,
           )
 
-        const images = await getProductImages(env, productId)
-
-        const objectKeys = images
-          .filter((image) => image.startsWith("/api/images/"))
-          .map((image) => image.slice("/api/images/".length))
+        await env.DB.prepare("DELETE FROM product_images WHERE product_id = ?")
+          .bind(productId)
+          .run()
 
         await env.DB.prepare("DELETE FROM products WHERE id = ?")
           .bind(productId)
           .run()
-
-        await deleteR2Objects(env.PRODUCT_IMAGES, objectKeys)
 
         return withCors(
           json({ success: true, message: "Product deleted." }),

@@ -12,6 +12,7 @@ import type { Availability } from "../../types"
 const SIZES_DEFAULT = ["XS", "S", "M", "L", "XL", "XXL", "Custom"]
 const PRODUCT_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"])
 const MAX_PRODUCT_IMAGE_SIZE = 5 * 1024 * 1024
+const MAX_D1_IMAGE_SIZE = 1_400_000
 
 // A broad tailoring/fabric colour catalogue grouped by family. Admins click the
 // colours their pieces are available in, and can still type any extra custom
@@ -204,14 +205,56 @@ const ALL_PALETTE_COLOURS = new Set(
   COLOUR_FAMILIES.flatMap((family) => family.colours.map((c) => c.toLowerCase())),
 )
 
-const readFileAsDataUrl = (file: File) =>
+const readBlobAsDataUrl = (blob: Blob) =>
   new Promise<string>((resolve, reject) => {
     const reader = new FileReader()
     reader.onload = () => resolve(String(reader.result))
-    reader.onerror = () =>
-      reject(new Error(`Unable to read file: ${file.name}`))
-    reader.readAsDataURL(file)
+    reader.onerror = () => reject(new Error("Unable to read image data."))
+    reader.readAsDataURL(blob)
   })
+
+const compressImageForD1 = async (file: File) => {
+  const bitmap = await createImageBitmap(file)
+
+  try {
+    const scale = Math.min(1, 1600 / Math.max(bitmap.width, bitmap.height))
+    let width = Math.max(1, Math.round(bitmap.width * scale))
+    let height = Math.max(1, Math.round(bitmap.height * scale))
+    const canvas = document.createElement("canvas")
+    const context = canvas.getContext("2d")
+
+    if (!context) throw new Error("Unable to process this image.")
+
+    for (let attempt = 0; attempt < 8; attempt += 1) {
+      canvas.width = width
+      canvas.height = height
+      context.drawImage(bitmap, 0, 0, width, height)
+
+      const quality = attempt < 3 ? 0.82 - attempt * 0.1 : 0.72
+      const blob = await new Promise<Blob>((resolve, reject) => {
+        canvas.toBlob(
+          (result) =>
+            result
+              ? resolve(result)
+              : reject(new Error("Unable to compress this image.")),
+          "image/webp",
+          quality,
+        )
+      })
+
+      if (blob.size <= MAX_D1_IMAGE_SIZE) return readBlobAsDataUrl(blob)
+
+      if (attempt >= 2) {
+        width = Math.max(1, Math.round(width * 0.8))
+        height = Math.max(1, Math.round(height * 0.8))
+      }
+    }
+
+    throw new Error("Image is too large to store in D1. Choose a smaller image.")
+  } finally {
+    bitmap.close()
+  }
+}
 
 export default function ProductForm() {
   const { id } = useParams()
@@ -314,7 +357,7 @@ export default function ProductForm() {
 
     try {
       const nextImages = await Promise.all(
-        files.map((file) => readFileAsDataUrl(file)),
+        files.map(compressImageForD1),
       )
       set("images", [...form.images, ...nextImages])
     } catch (error) {
