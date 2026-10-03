@@ -1,119 +1,170 @@
-<!--
-Purpose: Project overview, setup instructions, and Cloudflare deployment guide.
-Linked to: package.json, worker configuration, database schema, and developer workflows.
-Note: This document explains how the app is run locally and deployed to Cloudflare.
--->
 # Panda Closet
 
-Panda Closet is a React storefront and protected admin dashboard. Production runs as one Cloudflare Worker serving the built frontend and API, with D1 for application data and R2 for product images.
+This project is a small online clothing shop built as a student project. The idea was to create a simple boutique website where customers can browse products, place orders, and contact the business. The admin dashboard lets the owner manage products, categories, messages, and store settings.
 
-## Architecture
+The app is built with React and Vite on the frontend, and a Cloudflare Worker handles the API and hosting. I kept the project simple and practical so it could be deployed on a free Cloudflare plan using D1 for data storage.
 
-- Frontend: React 19, React Router, and Vite; built into `dist/`.
-- Production backend: `worker/src/index.js`, a Fetch API Cloudflare Worker.
-- Database: Cloudflare D1, bound as `env.DB`.
-- Product media: Cloudflare R2, bound as `env.PRODUCT_IMAGES` and served through `/api/images/*`.
-- Local-only backend: Express, better-sqlite3, filesystem uploads, and SMTP in `backend/server.js`.
+## Project purpose
 
-The production Worker also serves the static frontend from `dist/`, so browser API and admin session requests are same-origin. Production does not use the local SQLite database or `backend/uploads/`.
+Panda Closet is meant to be a lightweight storefront for a fashion boutique. It includes:
 
-## Requirements
+- a public product catalog
+- product detail pages
+- a simple order form
+- a contact form
+- a protected admin login
+- product/category management
+- store settings
 
-Use Node.js `22.22.0` (pinned by `.nvmrc`) and npm. The project lockfile is `package-lock.json`.
+## Tech stack
+
+- Frontend: React, Vite, TypeScript
+- API/backend: Cloudflare Worker
+- Database: Cloudflare D1
+- Styling: Tailwind CSS
+- Auth: bcrypt hashing + Worker cookie sessions
+
+## Important note about Cloudflare free plan
+
+This version is designed to work without R2 storage because R2 is not available on the free plan.
+
+That means:
+
+- product images are not uploaded to Cloudflare storage
+- image paths should be stored as URLs or local file references
+- if you want image uploading, you will need a paid plan or a different storage provider
+
+For this project, the app is set up to use D1 only and keep the setup simple.
 
 ## Local development
 
-```powershell
-npm ci
-Copy-Item .env.example .env
+Make sure you have Node.js 22 or newer installed.
+
+1. Install dependencies
+
+```bash
+npm install
+```
+
+2. Copy the example environment file if needed
+
+```bash
+cp .env.example .env
+```
+
+3. Start the local app
+
+```bash
 npm run dev
 ```
 
-The local storefront is at `http://localhost:4173`; Vite proxies `/api` to Express on port `3000`. Set a strong `ADMIN_PASSWORD` and `SESSION_SECRET` in `.env` before the first local run. Local data is stored in `backend/database.db` and local uploads are stored under `backend/uploads/`.
+The frontend usually runs on:
 
-To exercise the Cloudflare implementation locally, apply the schema to Wrangler's local D1 and start the Worker:
+- http://localhost:4173
 
-```bash
-npm run cf:db:apply
-npm run cf:dev
-```
+The local backend in this project is still used for development, so the app may also rely on the Express server setup if you are running it manually.
 
-The Worker is served at `http://localhost:8787`.
+## Cloudflare Worker setup
 
-## Cloudflare setup
+This project is intended to run as a single Cloudflare Worker that serves the built frontend and API routes.
 
-1. Authenticate Wrangler with your account:
+1. Log in to Wrangler
 
 ```bash
 npx wrangler login
 ```
 
-2. Create the D1 database and R2 bucket:
+2. Create a D1 database
 
 ```bash
 npx wrangler d1 create panda-closet
-npx wrangler r2 bucket create panda-closet-images
 ```
 
-Copy the real D1 `database_id` printed by Wrangler into `wrangler.toml`, replacing `YOUR_D1_DATABASE_ID`. Do not invent an ID. The bucket name in Wrangler must match the bucket created in your account.
+3. Update your `wrangler.toml` file with the real D1 database ID
 
-3. Apply the D1 schema to the remote database:
+```toml
+[[d1_databases]]
+binding = "DB"
+database_name = "panda-closet"
+database_id = "YOUR_DATABASE_ID"
+```
+
+4. Run the project build
+
+```bash
+npm run build
+```
+
+5. Deploy
+
+```bash
+npx wrangler deploy
+```
+
+## Database setup
+
+The app expects the D1 schema from the project database folder. If needed, apply the schema with Wrangler.
 
 ```bash
 npx wrangler d1 execute panda-closet --file=./database/schema.sql --remote
 ```
 
-For a database created before the `orders.location` column was added, apply this once instead of recreating the database:
+## Admin setup
+
+The project includes an admin flow for managing the shop.
+
+For the Cloudflare version, create the first admin using a setup token or the admin setup route described in the project code.
+
+The app uses a secure hashed password and cookie-based session management.
+
+## Useful scripts
 
 ```bash
-npx wrangler d1 execute panda-closet --remote --command="ALTER TABLE orders ADD COLUMN location TEXT;"
-```
-
-Do not run that `ALTER TABLE` command on a database that already has the column.
-
-4. Create an initial admin using a one-time Worker secret:
-
-```bash
-npx wrangler secret put ADMIN_SETUP_TOKEN
-npm run deploy
-```
-
-Send one `POST /api/admin/create` request with an `Authorization: Bearer <token>` header and JSON containing `email`, `name`, and a password of at least 12 characters. This endpoint works only while the D1 `admins` table is empty. Then remove the setup secret:
-
-```bash
-npx wrangler secret delete ADMIN_SETUP_TOKEN
-```
-
-The Worker uses D1-backed, expiring HttpOnly sessions; it does not need a `SESSION_SECRET`. Do not place real secrets in `wrangler.toml`, `.env.example`, or Git.
-
-5. Deploy and verify:
-
-```bash
-npm run deploy
-npx wrangler deploy --dry-run
-```
-
-`npm run deploy` builds `dist/` and deploys the Worker. The application and `/api/*` routes share the Worker origin; no production `VITE_API_BASE_URL` is needed.
-
-## GitHub deployment
-
-In Cloudflare, connect the GitHub repository under Workers Builds and select the production branch you actually use. The repository root is the build root. Configure Node `22.22.0`, build command `npm run build`, and deploy command `npx wrangler deploy`. Wrangler reads `wrangler.toml`; keep the real D1 ID in that file and manage `ADMIN_SETUP_TOKEN` through Worker secrets only during initial setup.
-
-Cloudflare's build connection supplies deployment authorization; do not commit an API token. Future deployments build `dist/`, then run Wrangler to publish the Worker and assets.
-
-## APIs and user flows
-
-Public routes include `GET /api/products`, `GET /api/products/:slug`, `GET /api/categories`, `GET /api/settings/public`, `POST /api/orders`, and `POST /api/messages`. Admin routes are checked against the D1 session on every request. Product uploads validate image type/size, store objects in R2, and keep object paths in D1.
-
-WhatsApp buttons open a prefilled `wa.me` chat. This is not an automated WhatsApp Business API integration; the person using WhatsApp must send the prepared message. The Worker does not send email; SMTP settings in `.env` apply only to the local Express backend.
-
-## Verification
-
-```bash
-npm run typecheck
+npm run dev
 npm run build
-npm audit
-npx wrangler deploy --dry-run
+npm run typecheck
+npm run deploy
+npm run cf:dev
 ```
 
-Use the browser to verify home/shop/product deep links, product images, public categories/settings, customer order and contact submissions, admin login/session/logout, and protected admin operations after configuring real Cloudflare resources.
+## Project structure
+
+```text
+/
+├── src/                 # frontend React app
+├── worker/              # Cloudflare Worker API
+├── backend/             # local helper backend for dev/testing
+├── database/            # SQL schema and database files
+├── public/              # static assets
+├── package.json         # project scripts and dependencies
+├── vite.config.ts       # frontend config
+├── wrangler.toml        # Cloudflare config
+├── README.md            # project notes
+└── .env.example         # environment example
+```
+
+## Notes for students
+
+This project was created as a learning project to explore:
+
+- React app structure
+- REST API routes
+- authentication and sessions
+- database design with D1
+- Cloudflare deployment
+- full-stack app development in one project
+
+It is not a production-ready SaaS system, but it is a working example of how to build a small store with cloud deployment.
+
+## Final note
+
+This project is a student-built demo and can be improved further with things like:
+
+- real image hosting
+- better admin dashboard UX
+- stronger validation and error handling
+- email notifications
+- payment integration
+- tests
+
+If you want to expand it later, these are the next best features to add.
