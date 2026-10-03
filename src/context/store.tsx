@@ -15,7 +15,12 @@ import type {
 import { DEFAULT_SETTINGS } from "../data/mock"
 import { generateId } from "../lib/utils"
 import { apiUrl, createProductFormData, resolveApiImage } from "../lib/api"
-import { BUSINESS_WHATSAPP_NUMBER } from "../lib/utils"
+import {
+  BUSINESS_EMAIL,
+  BUSINESS_LOCATION,
+  BUSINESS_PHONE_NUMBER,
+  BUSINESS_WHATSAPP_NUMBER,
+} from "../lib/utils"
 
 const STORAGE_KEYS = {
   admin: "panda_admin",
@@ -210,6 +215,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         ...DEFAULT_SETTINGS,
         ...remoteSettings,
         whatsappNumber: BUSINESS_WHATSAPP_NUMBER,
+        phoneNumber: BUSINESS_PHONE_NUMBER,
+        email: BUSINESS_EMAIL,
+        location: BUSINESS_LOCATION,
         defaultWhatsappMessage,
       })
       return remoteSettings

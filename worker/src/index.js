@@ -456,9 +456,9 @@ export default {
 
             whatsappNumber: "+265888131243",
 
-            phoneNumber: payload.phone || "",
+            phoneNumber: "+265888131243",
 
-            email: payload.email || "hello@pandacloset.com",
+            email: "pandacloset02@gmail.com",
 
             instagramUrl: payload.instagram_url || "",
 
@@ -466,7 +466,7 @@ export default {
 
             tiktokUrl: payload.tiktok_url || "",
 
-            location: payload.location || "",
+            location: "Blantyre, Malawi",
 
             defaultWhatsappMessage:
               payload.default_whatsapp_message ||
@@ -1759,9 +1759,9 @@ export default {
 
             whatsappNumber: "+265888131243",
 
-            phoneNumber: row.phone,
+            phoneNumber: "+265888131243",
 
-            email: row.email,
+            email: "pandacloset02@gmail.com",
 
             adminEmail: row.admin_email,
 
@@ -1775,7 +1775,7 @@ export default {
 
             businessDescription: row.business_description,
 
-            location: row.location,
+            location: "Blantyre, Malawi",
 
             defaultWhatsappMessage: row.default_whatsapp_message,
 
@@ -1809,7 +1809,7 @@ export default {
 
             sanitizeString(payload.phoneNumber),
 
-            sanitizeString(payload.email, "hello@pandacloset.com"),
+            sanitizeString(payload.email, "pandacloset02@gmail.com"),
 
             sanitizeString(payload.adminEmail, "admin@pandacloset.com"),
 

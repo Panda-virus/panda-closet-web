@@ -85,7 +85,7 @@ export default function AdminSettings() {
               onChange={(e) =>
                 set("whatsappNumber", e.target.value.replace(/\D/g, "").slice(0, 10))
               }
-              placeholder="0987414840"
+              placeholder="0888131243"
               className={inp()}
             />
           </Field>
@@ -96,7 +96,7 @@ export default function AdminSettings() {
               onChange={(e) =>
                 set("phoneNumber", e.target.value.replace(/\D/g, "").slice(0, 10))
               }
-              placeholder="0987414840"
+              placeholder="+265888131243"
               className={inp()}
             />
           </Field>
@@ -105,7 +105,7 @@ export default function AdminSettings() {
               type="email"
               value={form.email}
               onChange={(e) => set("email", e.target.value)}
-              placeholder="hello@pandacloset.mw"
+              placeholder="pandacloset02@gmail.com"
               className={inp()}
             />
           </Field>
@@ -123,7 +123,7 @@ export default function AdminSettings() {
               type="text"
               value={form.location}
               onChange={(e) => set("location", e.target.value)}
-              placeholder="Lilongwe, Malawi"
+              placeholder="Blantyre, Malawi"
               className={inp()}
             />
           </Field>

@@ -114,9 +114,9 @@ const ensureDefaultSettings = () => {
 
       "+265888131243",
 
-      "+265999000000",
+      "+265888131243",
 
-      "hello@pandacloset.com",
+      "pandacloset02@gmail.com",
 
       "admin@pandacloset.com",
 
@@ -130,7 +130,7 @@ const ensureDefaultSettings = () => {
 
       "Minimal tailoring, crafted for everyday confidence.",
 
-      "Lilongwe, Malawi",
+      "Blantyre, Malawi",
 
       "Hello Panda Closet, I would like to see what you have available in your collection.",
 
@@ -628,9 +628,9 @@ const getPublicSettings = () => {
 
       whatsappNumber: "+265888131243",
 
-      phoneNumber: "",
+      phoneNumber: "+265888131243",
 
-      email: "hello@pandacloset.com",
+      email: "pandacloset02@gmail.com",
 
       adminEmail: "admin@pandacloset.com",
 
@@ -640,7 +640,7 @@ const getPublicSettings = () => {
 
       tiktokUrl: "",
 
-      location: "",
+      location: "Blantyre, Malawi",
 
       defaultWhatsappMessage:
         "Hello Panda Closet, I would like to see what you have available in your collection.",
@@ -659,9 +659,9 @@ const getPublicSettings = () => {
 
     whatsappNumber: "+265888131243",
 
-    phoneNumber: row.phone || "",
+    phoneNumber: "+265888131243",
 
-    email: row.email || "hello@pandacloset.com",
+    email: "pandacloset02@gmail.com",
 
     instagramUrl: row.instagram_url || "",
 
@@ -669,7 +669,7 @@ const getPublicSettings = () => {
 
     tiktokUrl: row.tiktok_url || "",
 
-    location: row.location || "",
+    location: "Blantyre, Malawi",
 
     defaultWhatsappMessage:
       row.default_whatsapp_message ||
@@ -771,7 +771,7 @@ const sendOrderNotifications = async (order) => {
   const smtpUser = process.env.SMTP_USER?.trim()
   const smtpPass = process.env.SMTP_PASS?.trim()
   const smtpPort = Number(process.env.SMTP_PORT || 587)
-  const fromAddress = (process.env.EMAIL_FROM || settings.email || "hello@pandacloset.com").trim()
+  const fromAddress = (process.env.EMAIL_FROM || settings.email || "pandacloset02@gmail.com").trim()
 
   if (smtpHost && smtpUser && smtpPass) {
     try {
@@ -2070,9 +2070,9 @@ app.get("/api/admin/settings", requireAdmin, (req, res) => {
 
     whatsappNumber: "+265888131243",
 
-    phoneNumber: row.phone,
+    phoneNumber: "+265888131243",
 
-    email: row.email,
+    email: "pandacloset02@gmail.com",
 
     adminEmail: row.admin_email,
 
@@ -2086,7 +2086,7 @@ app.get("/api/admin/settings", requireAdmin, (req, res) => {
 
     businessDescription: row.business_description,
 
-    location: row.location,
+    location: "Blantyre, Malawi",
 
     defaultWhatsappMessage: row.default_whatsapp_message,
 
@@ -2112,7 +2112,7 @@ app.put("/api/admin/settings", requireAdmin, (req, res) => {
 
     payload.phoneNumber || "",
 
-    payload.email || "hello@pandacloset.com",
+    payload.email || "pandacloset02@gmail.com",
 
     payload.adminEmail || "admin@pandacloset.com",
 

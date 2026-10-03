@@ -6,6 +6,9 @@
 import type { Availability, AvailabilityChoice, Settings } from "../types"
 
 export const BUSINESS_WHATSAPP_NUMBER = "0888131243"
+export const BUSINESS_PHONE_NUMBER = "+265888131243"
+export const BUSINESS_EMAIL = "pandacloset02@gmail.com"
+export const BUSINESS_LOCATION = "Blantyre, Malawi"
 
 export function formatPrice(amount: number, settings: Settings): string {
   return `${settings.currencySymbol}${amount.toLocaleString()}`
