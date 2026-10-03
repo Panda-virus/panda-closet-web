@@ -1223,7 +1223,11 @@ app.post("/api/orders", async (req, res) => {
 
   if (
     product.status !== "published" ||
-    !["available", "made-to-order"].includes(product.availability)
+    ![
+      "available",
+      "made-to-order",
+      "available-and-made-to-order",
+    ].includes(product.availability)
   ) {
     return res
       .status(400)

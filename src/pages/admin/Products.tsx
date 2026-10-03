@@ -11,6 +11,7 @@ import { formatPrice, AVAILABILITY_LABELS } from "../../lib/utils"
 const AVAIL_COLORS: Record<string, string> = {
   available: "bg-emerald-50 text-emerald-700",
   "made-to-order": "bg-amber-50 text-amber-700",
+  "available-and-made-to-order": "bg-emerald-50 text-emerald-700",
   "sold-out": "bg-gray-100 text-muted",
   hidden: "bg-red-50 text-red-600",
 }

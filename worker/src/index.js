@@ -613,7 +613,11 @@ export default {
 
         if (
           productRow.status !== "published" ||
-          !["available", "made-to-order"].includes(productRow.availability)
+          ![
+            "available",
+            "made-to-order",
+            "available-and-made-to-order",
+          ].includes(productRow.availability)
         ) {
           return withCors(
             json(
@@ -1105,7 +1109,13 @@ export default {
 
             normalizeStatus(
               product.availability,
-              ["available", "made-to-order", "sold-out", "hidden"],
+              [
+                "available",
+                "made-to-order",
+                "available-and-made-to-order",
+                "sold-out",
+                "hidden",
+              ],
               "available",
             ),
 
@@ -1469,7 +1479,13 @@ export default {
 
             normalizeStatus(
               product.availability,
-              ["available", "made-to-order", "sold-out", "hidden"],
+              [
+                "available",
+                "made-to-order",
+                "available-and-made-to-order",
+                "sold-out",
+                "hidden",
+              ],
               existing.availability,
             ),
 

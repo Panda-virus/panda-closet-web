@@ -6,17 +6,19 @@
 import { Link } from "react-router"
 import type { Product } from "../../types"
 import { useStore } from "../../context/store"
-import { formatPrice } from "../../lib/utils"
+import { availabilityIncludes, formatPrice } from "../../lib/utils"
 
 const BADGE_STYLES: Record<string, string> = {
   available: "bg-emerald-50 text-emerald-700 border-emerald-200",
   "made-to-order": "bg-amber-50 text-amber-700 border-amber-200",
+  "available-and-made-to-order": "bg-emerald-50 text-emerald-700 border-emerald-200",
   "sold-out": "bg-light text-muted border-light",
 }
 
 const BADGE_LABELS: Record<string, string> = {
   available: "Available",
   "made-to-order": "Made to Order",
+  "available-and-made-to-order": "Available + Made to Order",
   "sold-out": "Sold Out",
 }
 
@@ -72,7 +74,7 @@ export default function ProductCard({ product }: { product: Product }) {
           <p className="font-medium text-ink text-sm">
             {formatPrice(product.price, settings)}
           </p>
-          {product.availability !== "available" && (
+          {!availabilityIncludes(product.availability, "available") && (
             <span
               className={`text-[10px] font-medium tracking-wider uppercase border px-2 py-0.5 ${BADGE_STYLES[product.availability]}`}
             >

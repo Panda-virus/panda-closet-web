@@ -11,6 +11,8 @@ import {
   buildWhatsAppUrl,
   customizeWhatsAppMessage,
   DEFAULT_ORDER_NOTES,
+  availabilityIncludes,
+  isOrderableAvailability,
 } from "../lib/utils"
 import { WhatsAppIcon } from "../components/layout/Navbar"
 import ProductCard from "../components/product/ProductCard"
@@ -25,6 +27,10 @@ const AVAILABILITY_BADGE: Record<string, { label: string; className: string }> =
     "made-to-order": {
       label: "Made to Order",
       className: "bg-amber-50 text-amber-700 border-amber-200",
+    },
+    "available-and-made-to-order": {
+      label: "Available + Made to Order",
+      className: "bg-emerald-50 text-emerald-700 border-emerald-200",
     },
     "sold-out": {
       label: "Sold Out",
@@ -84,9 +90,7 @@ export default function Product() {
   })
   const waUrl = buildWhatsAppUrl(settings.whatsappNumber, waMsg)
 
-  const canOrder =
-    product.availability === "available" ||
-    product.availability === "made-to-order"
+  const canOrder = isOrderableAvailability(product.availability)
   const visibleProducts = products.filter(
     (item) => item.id !== product.id && item.availability !== "hidden",
   )
@@ -267,7 +271,7 @@ export default function Product() {
               </div>
 
               {/* Made to order note */}
-              {product.availability === "made-to-order" && (
+              {availabilityIncludes(product.availability, "made-to-order") && (
                 <div className="bg-amber-50 border border-amber-200 px-4 py-3 mb-4 md:mb-8 text-sm text-amber-800 leading-relaxed">
                   This piece is made after your order is confirmed. Contact us
                   for available fabric, sizing and turnaround time.
@@ -296,7 +300,7 @@ export default function Product() {
                     onClick={() => setOrderOpen(true)}
                     className="w-full bg-ink text-cream text-xs font-medium tracking-[0.2em] uppercase py-4 hover:bg-ink-soft transition-colors"
                   >
-                    {product.availability === "made-to-order"
+                    {availabilityIncludes(product.availability, "made-to-order")
                       ? "Order This Piece"
                       : "Order This Item"}
                   </button>

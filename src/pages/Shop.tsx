@@ -6,7 +6,8 @@
 import { useState, useMemo } from "react"
 import { useStore } from "../context/store"
 import ProductCard from "../components/product/ProductCard"
-import type { Availability } from "../types"
+import { availabilityIncludes } from "../lib/utils"
+import type { AvailabilityChoice } from "../types"
 
 const SORT_OPTIONS = [
   { value: "featured", label: "Featured" },
@@ -15,7 +16,7 @@ const SORT_OPTIONS = [
   { value: "price-desc", label: "Price: High to Low" },
 ]
 
-const AVAILABILITY_FILTERS: { value: Availability | "all"; label: string }[] = [
+const AVAILABILITY_FILTERS: { value: AvailabilityChoice | "all"; label: string }[] = [
   { value: "all", label: "All" },
   { value: "available", label: "Available" },
   { value: "made-to-order", label: "Made to Order" },
@@ -26,7 +27,7 @@ export default function Shop() {
   const { products, productsLoading, categories } = useStore()
   const [search, setSearch] = useState("")
   const [category, setCategory] = useState("all")
-  const [availability, setAvailability] = useState<Availability | "all">("all")
+  const [availability, setAvailability] = useState<AvailabilityChoice | "all">("all")
   const [sort, setSort] = useState("featured")
 
   const activeCategories = categories.filter((c) => c.status === "active")
@@ -64,7 +65,7 @@ export default function Shop() {
     }
 
     if (availability !== "all") {
-      list = list.filter((p) => p.availability === availability)
+      list = list.filter((p) => availabilityIncludes(p.availability, availability))
     }
 
     switch (sort) {

@@ -6,13 +6,19 @@
 import { useState, useEffect } from "react"
 import { useNavigate, useParams } from "react-router"
 import { useStore } from "../../context/store"
-import { slugify } from "../../lib/utils"
-import type { Availability } from "../../types"
+import { availabilityIncludes, slugify } from "../../lib/utils"
+import type { Availability, AvailabilityChoice } from "../../types"
 
 const SIZES_DEFAULT = ["XS", "S", "M", "L", "XL", "XXL", "Custom"]
 const PRODUCT_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"])
 const MAX_PRODUCT_IMAGE_SIZE = 5 * 1024 * 1024
 const MAX_D1_IMAGE_SIZE = 1_400_000
+const AVAILABILITY_CHOICES: AvailabilityChoice[] = [
+  "available",
+  "made-to-order",
+  "sold-out",
+  "hidden",
+]
 
 // A broad tailoring/fabric colour catalogue grouped by family. Admins click the
 // colours their pieces are available in, and can still type any extra custom
@@ -321,6 +327,34 @@ export default function ProductForm() {
     )
   }
 
+  const toggleAvailability = (choice: AvailabilityChoice) => {
+    if (choice === "sold-out" || choice === "hidden") {
+      set("availability", choice)
+      return
+    }
+
+    const selected = new Set(
+      AVAILABILITY_CHOICES.filter(
+        (option) =>
+          option === "available" || option === "made-to-order",
+      ).filter((option) => availabilityIncludes(form.availability, option)),
+    )
+
+    if (selected.has(choice)) {
+      if (selected.size === 1) return
+      selected.delete(choice)
+    } else {
+      selected.add(choice)
+    }
+
+    set(
+      "availability",
+      selected.size === 2
+        ? "available-and-made-to-order"
+        : [...selected][0],
+    )
+  }
+
   const customColours = form.colours.filter(
     (c) => !ALL_PALETTE_COLOURS.has(c.toLowerCase()),
   )
@@ -540,18 +574,14 @@ export default function ProductForm() {
         {/* Availability */}
         <Field label="Availability">
           <div className="flex flex-wrap gap-2">
-            {([
-              "available",
-              "made-to-order",
-              "sold-out",
-              "hidden",
-            ] as Availability[]).map((av) => (
+            {AVAILABILITY_CHOICES.map((av) => (
               <button
                 type="button"
                 key={av}
-                onClick={() => set("availability", av)}
+                onClick={() => toggleAvailability(av)}
+                aria-pressed={availabilityIncludes(form.availability, av)}
                 className={`px-4 py-2 text-sm border capitalize transition-colors ${
-                  form.availability === av
+                  availabilityIncludes(form.availability, av)
                     ? "bg-ink text-white border-ink"
                     : "bg-white text-ink border-light hover:border-ink"
                 }`}

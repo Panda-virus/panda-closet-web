@@ -3,7 +3,16 @@
  * Linked to: src/context/store.tsx, src/pages/*, and the UI components that consume app data.
  * Note: This file keeps the frontend types aligned with the backend payload structure.
  */
-export type Availability = "available" | "made-to-order" | "sold-out" | "hidden"
+export type Availability =
+  | "available"
+  | "made-to-order"
+  | "available-and-made-to-order"
+  | "sold-out"
+  | "hidden"
+export type AvailabilityChoice = Exclude<
+  Availability,
+  "available-and-made-to-order"
+>
 export type OrderStatus = "new" | "contacted" | "confirmed" | "completed" | "cancelled"
 export type MessageStatus = "unread" | "read" | "responded"
 export type CategoryStatus = "active" | "hidden"

@@ -3,7 +3,7 @@
  * Linked to: src/pages/*, src/components/*, and the store logic used across the storefront and admin panels.
  * Note: This file is reused throughout the system and should be kept lightweight and consistent.
  */
-import type { Settings } from "../types"
+import type { Availability, AvailabilityChoice, Settings } from "../types"
 
 export const BUSINESS_WHATSAPP_NUMBER = "0888131243"
 
@@ -162,8 +162,25 @@ export function generateId(): string {
 export const AVAILABILITY_LABELS: Record<string, string> = {
   available: "Available",
   "made-to-order": "Made to Order",
+  "available-and-made-to-order": "Available + Made to Order",
   "sold-out": "Sold Out",
   hidden: "Hidden",
+}
+
+export function availabilityIncludes(
+  availability: Availability,
+  choice: AvailabilityChoice,
+): boolean {
+  if (availability === "available-and-made-to-order")
+    return choice === "available" || choice === "made-to-order"
+  return availability === choice
+}
+
+export function isOrderableAvailability(availability: Availability): boolean {
+  return (
+    availabilityIncludes(availability, "available") ||
+    availabilityIncludes(availability, "made-to-order")
+  )
 }
 
 export const ORDER_STATUS_LABELS: Record<string, string> = {
