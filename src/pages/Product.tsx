@@ -305,21 +305,17 @@ export default function Product() {
                       : "Order This Item"}
                   </button>
                 )}
-                <a
-                  href={waUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`w-full flex items-center justify-center gap-2 text-xs font-medium tracking-[0.2em] uppercase py-4 transition-colors ${
-                    canOrder
-                      ? "border border-light text-ink hover:border-ink"
-                      : "bg-whatsapp text-white hover:opacity-90"
-                  }`}
-                >
-                  <WhatsAppIcon size={14} />
-                  {product.availability === "sold-out"
-                    ? "Enquire on WhatsApp"
-                    : "Chat on WhatsApp"}
-                </a>
+                {!canOrder && (
+                  <a
+                    href={waUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full flex items-center justify-center gap-2 text-xs font-medium tracking-[0.2em] uppercase py-4 transition-colors bg-whatsapp text-white hover:opacity-90"
+                  >
+                    <WhatsAppIcon size={14} />
+                    Enquire on WhatsApp
+                  </a>
+                )}
               </div>
             </div>
           </div>
