@@ -9,10 +9,6 @@ binding = "DB"
 database_name = "panda-closet"
 database_id = "96af9d4d-0e8a-4af9-b4c8-06ec01605d93"
 
-[[r2_buckets]]
-binding = "PRODUCT_IMAGES"
-bucket_name = "panda-closet-images"
-
 [assets]
 directory = "./dist"
 binding = "ASSETS"
