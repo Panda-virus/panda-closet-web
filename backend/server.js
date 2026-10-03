@@ -112,7 +112,7 @@ const ensureDefaultSettings = () => {
 
       "Panda Closet",
 
-      "+265999000000",
+      "+265888131243",
 
       "+265999000000",
 
@@ -626,7 +626,7 @@ const getPublicSettings = () => {
     return {
       businessName: "Panda Closet",
 
-      whatsappNumber: "",
+      whatsappNumber: "+265888131243",
 
       phoneNumber: "",
 
@@ -657,7 +657,7 @@ const getPublicSettings = () => {
   return {
     businessName: row.business_name || "Panda Closet",
 
-    whatsappNumber: row.whatsapp_number || "",
+    whatsappNumber: "+265888131243",
 
     phoneNumber: row.phone || "",
 
@@ -757,7 +757,7 @@ const sendOrderNotifications = async (order) => {
     "admin@pandacloset.com"
   ).trim()
 
-  const whatsappNumber = (settings.whatsappNumber || "+265999000000").replace(/\D/g, "")
+  const whatsappNumber = "265888131243"
   const whatsappText = encodeURIComponent(
     `Hello Panda Closet, I just submitted order request ${order.orderNumber} and would like to follow up.`,
   )
@@ -1358,7 +1358,7 @@ app.post("/api/orders", async (req, res) => {
     .filter(Boolean)
     .join("\n")
 
-  const waLink = `https://wa.me/${settings.whatsappNumber.replace(/\D/g, "")}?text=${encodeURIComponent(customerMessage)}`
+  const waLink = `https://wa.me/265888131243?text=${encodeURIComponent(customerMessage)}`
 
   const notified = await sendOrderNotifications({
     orderNumber,
@@ -2064,7 +2064,7 @@ app.get("/api/admin/settings", requireAdmin, (req, res) => {
   res.json({
     businessName: row.business_name,
 
-    whatsappNumber: row.whatsapp_number,
+    whatsappNumber: "+265888131243",
 
     phoneNumber: row.phone,
 

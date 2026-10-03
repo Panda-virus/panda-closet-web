@@ -5,6 +5,8 @@
  */
 import type { Settings } from "../types"
 
+export const BUSINESS_WHATSAPP_NUMBER = "0888131243"
+
 export function formatPrice(amount: number, settings: Settings): string {
   return `${settings.currencySymbol}${amount.toLocaleString()}`
 }

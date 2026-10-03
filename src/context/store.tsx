@@ -15,6 +15,7 @@ import type {
 import { DEFAULT_SETTINGS } from "../data/mock"
 import { generateId } from "../lib/utils"
 import { apiUrl, createProductFormData, resolveApiImage } from "../lib/api"
+import { BUSINESS_WHATSAPP_NUMBER } from "../lib/utils"
 
 const STORAGE_KEYS = {
   admin: "panda_admin",
@@ -195,7 +196,11 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       const response = await fetch(apiUrl("/api/settings/public"))
       if (!response.ok) throw new Error("Unable to load business settings.")
       const remoteSettings: Partial<Settings> = await response.json()
-      setSettings({ ...DEFAULT_SETTINGS, ...remoteSettings })
+      setSettings({
+        ...DEFAULT_SETTINGS,
+        ...remoteSettings,
+        whatsappNumber: BUSINESS_WHATSAPP_NUMBER,
+      })
       return remoteSettings
     } catch (error) {
       console.error("Unable to load business settings:", error)

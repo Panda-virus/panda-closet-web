@@ -10,6 +10,8 @@ import { slugify } from "../../lib/utils"
 import type { Availability } from "../../types"
 
 const SIZES_DEFAULT = ["XS", "S", "M", "L", "XL", "XXL", "Custom"]
+const PRODUCT_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"])
+const MAX_PRODUCT_IMAGE_SIZE = 5 * 1024 * 1024
 
 // A broad tailoring/fabric colour catalogue grouped by family. Admins click the
 // colours their pieces are available in, and can still type any extra custom
@@ -294,6 +296,21 @@ export default function ProductForm() {
   ) => {
     const files = Array.from(event.target.files ?? [])
     if (!files.length) return
+
+    const error =
+      form.images.length + files.length > 10
+        ? "A product can have up to 10 images."
+        : files.some((file) => !PRODUCT_IMAGE_TYPES.has(file.type))
+          ? "Use JPG, PNG, or WEBP images."
+          : files.some((file) => file.size > MAX_PRODUCT_IMAGE_SIZE)
+            ? "Each image must be 5 MB or smaller."
+            : ""
+
+    if (error) {
+      setErrors((prev) => ({ ...prev, images: error }))
+      event.target.value = ""
+      return
+    }
 
     try {
       const nextImages = await Promise.all(
@@ -635,13 +652,13 @@ export default function ProductForm() {
         {/* Images */}
         <Field
           label="Product Images"
-          note="Upload from your computer"
+          note="JPG, PNG, or WEBP, up to 5 MB each; 10 images maximum"
           error={errors.images}
         >
           <div className="space-y-3">
             <input
               type="file"
-              accept="image/*"
+              accept="image/jpeg,image/png,image/webp"
               multiple
               onChange={handleImageUpload}
               className="block w-full text-sm text-ink file:mr-4 file:py-2.5 file:px-4 file:border-0 file:text-xs file:font-medium file:tracking-[0.12em] file:uppercase file:bg-ink file:text-cream hover:file:bg-ink/90"

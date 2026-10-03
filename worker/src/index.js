@@ -515,7 +515,7 @@ export default {
           json({
             businessName: payload.business_name || "Panda Closet",
 
-            whatsappNumber: payload.whatsapp_number || "",
+            whatsappNumber: "+265888131243",
 
             phoneNumber: payload.phone || "",
 
@@ -1807,7 +1807,7 @@ export default {
           json({
             businessName: row.business_name,
 
-            whatsappNumber: row.whatsapp_number,
+            whatsappNumber: "+265888131243",
 
             phoneNumber: row.phone,
 

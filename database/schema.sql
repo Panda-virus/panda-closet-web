@@ -107,7 +107,7 @@ CREATE TABLE IF NOT EXISTS messages (
 CREATE TABLE IF NOT EXISTS settings (
   id TEXT PRIMARY KEY CHECK(id = 'main'),
   business_name TEXT NOT NULL DEFAULT 'Panda Closet',
-  whatsapp_number TEXT DEFAULT '',
+  whatsapp_number TEXT DEFAULT '+265888131243',
   phone TEXT DEFAULT '',
   email TEXT DEFAULT 'hello@pandacloset.com',
   admin_email TEXT DEFAULT 'admin@pandacloset.com',
@@ -159,8 +159,8 @@ INSERT INTO settings (
 SELECT
   'main',
   'Panda Closet',
-  '+2650888131243',
-  '+2650888131243',
+  '+265888131243',
+  '+265888131243',
   'pandacloset02@gmail.com',
   'pandacloset02@gmail.com',
   'https://instagram.com/pandacloset',

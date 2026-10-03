@@ -4,10 +4,11 @@
  * Linked to: src/context/store.tsx and the settings-loaded state.
  */
 import type { Settings } from "../types"
+import { BUSINESS_WHATSAPP_NUMBER } from "../lib/utils"
 
 export const DEFAULT_SETTINGS: Settings = {
   businessName: "Panda Closet",
-  whatsappNumber: "0999000000",
+  whatsappNumber: BUSINESS_WHATSAPP_NUMBER,
   phoneNumber: "0999000000",
   email: "hello@pandacloset.mw",
   adminEmail: "admin@pandacloset.mw",
