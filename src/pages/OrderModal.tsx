@@ -495,26 +495,22 @@ export default function OrderModal({
                 onClick={() =>
                   document.getElementById("design-image-input")?.click()
                 }
-                className="w-full border border-dashed border-light bg-white text-ink text-sm px-4 py-8 flex flex-col items-center justify-center gap-2 hover:border-brown transition-colors"
+                className="w-full min-h-12 border border-light bg-white text-ink text-sm px-4 py-3 flex items-center justify-center gap-3 hover:border-brown transition-colors"
               >
                 <svg
-                  width="22"
-                  height="22"
+                  width="18"
+                  height="18"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="1.5"
                 >
-                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
-                  <polyline points="17 8 12 3 7 8" />
-                  <line x1="12" y1="3" x2="12" y2="15" />
+                  <rect x="3" y="3" width="18" height="18" rx="2" />
+                  <circle cx="8.5" cy="8.5" r="1.5" />
+                  <path d="m21 15-5-5L5 21" />
                 </svg>
-                <span>
-                  Tap to upload your preferred design or reference image
-                </span>
-                <span className="text-xs text-muted">
-                  Image file, max 1.4MB
-                </span>
+                <span className="font-medium">Choose preferred design</span>
+                <span className="text-xs text-muted">Optional · max 1.4 MB</span>
               </button>
             ) : (
               <div className="flex items-center gap-4 bg-white border border-light p-3">
