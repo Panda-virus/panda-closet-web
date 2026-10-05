@@ -51,6 +51,7 @@ export interface Order {
   quantity: number
   notes?: string
   contactPreference: "whatsapp" | "phone"
+  designImage?: string
   status: OrderStatus
   createdAt: string
   updatedAt: string

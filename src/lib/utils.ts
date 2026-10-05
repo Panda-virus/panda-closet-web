@@ -9,6 +9,42 @@ export const BUSINESS_WHATSAPP_NUMBER = "0888131243"
 export const BUSINESS_PHONE_NUMBER = "+265888131243"
 export const BUSINESS_EMAIL = "pandacloset02@gmail.com"
 export const BUSINESS_LOCATION = "Blantyre, Malawi"
+export const MAX_DESIGN_IMAGE_BYTES = 1_400_000
+
+const COLOUR_HEX: Record<string, string> = {
+  black: "#171717",
+  "jet black": "#101010",
+  charcoal: "#364152",
+  grey: "#808080",
+  gray: "#808080",
+  white: "#ffffff",
+  "off white": "#f8f7f2",
+  ivory: "#fffff0",
+  cream: "#fffdd0",
+  beige: "#d6c3a5",
+  brown: "#795548",
+  chocolate: "#7b3f00",
+  tan: "#d2b48c",
+  red: "#e53935",
+  burgundy: "#800020",
+  pink: "#ec8da0",
+  blush: "#f4c2c2",
+  orange: "#f57c00",
+  yellow: "#fdd835",
+  green: "#388e3c",
+  olive: "#808000",
+  sage: "#9caf88",
+  blue: "#1976d2",
+  navy: "#001f3f",
+  purple: "#7e57c2",
+  lavender: "#b39ddb",
+  gold: "#d4af37",
+  silver: "#c0c0c0",
+}
+
+export function colourHex(colour: string): string | undefined {
+  return COLOUR_HEX[colour.trim().toLowerCase()]
+}
 
 export function formatPrice(amount: number, settings: Settings): string {
   return `${settings.currencySymbol}${amount.toLocaleString()}`

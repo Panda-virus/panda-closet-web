@@ -16,6 +16,8 @@ import {
   formatPrice,
   buildWhatsAppUrl,
   buildOrderWhatsAppMessage,
+  colourHex,
+  MAX_DESIGN_IMAGE_BYTES,
 } from "../lib/utils"
 
 interface Props {
@@ -46,10 +48,48 @@ export default function OrderModal({
     colour: preselectedColour || "",
     quantity: 1,
     notes: "",
+    designImage: "",
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(false)
   const [submitError, setSubmitError] = useState("")
+
+  const readDesignFile = (file: File | undefined | null) => {
+    setSubmitError("")
+    if (!file) return
+    if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
+      setErrors((e) => ({
+        ...e,
+        designImage: "Please choose a PNG, JPG, or WEBP image.",
+      }))
+      return
+    }
+    if (file.size > MAX_DESIGN_IMAGE_BYTES) {
+      const mb = (MAX_DESIGN_IMAGE_BYTES / 1_000_000).toFixed(1)
+      setErrors((e) => ({
+        ...e,
+        designImage: `That image is too large. Please keep it under ${mb}MB.`,
+      }))
+      return
+    }
+    const reader = new FileReader()
+    reader.onload = () => {
+      set("designImage", String(reader.result || ""))
+      setErrors((e) => ({ ...e, designImage: "" }))
+    }
+    reader.onerror = () => {
+      setErrors((e) => ({
+        ...e,
+        designImage: "Unable to read that image. Please try another one.",
+      }))
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const removeDesignImage = () => {
+    set("designImage", "")
+    setErrors((e) => ({ ...e, designImage: "" }))
+  }
 
   const set = (key: string, value: any) => {
     setForm((f) => ({ ...f, [key]: value }))
@@ -99,6 +139,11 @@ export default function OrderModal({
 
     setLoading(true)
     setSubmitError("")
+    const userNote = form.notes.trim()
+    const designNote = form.designImage
+      ? "📎 A design reference image was attached with this order (visible in the platform)."
+      : ""
+    const notesForOrder = [userNote, designNote].filter(Boolean).join("\n\n")
     const orderData = {
       id: generateId(),
       customerName: form.customerName,
@@ -114,7 +159,8 @@ export default function OrderModal({
           : form.size || undefined,
       colour: form.colour || undefined,
       quantity: form.quantity,
-      notes: form.notes || undefined,
+      notes: notesForOrder || undefined,
+      designImage: form.designImage || undefined,
       status: "new" as const,
     }
 
@@ -362,21 +408,31 @@ export default function OrderModal({
             </label>
             {product.colours.length > 0 && (
               <div className="mb-3 flex flex-wrap gap-2" aria-label="Available colours">
-                {product.colours.map((colour) => (
-                  <button
-                    type="button"
-                    key={colour}
-                    aria-pressed={form.colour === colour}
-                    onClick={() => set("colour", colour)}
-                    className={`border px-3 py-2 text-sm transition-colors ${
-                      form.colour === colour
-                        ? "border-ink bg-ink text-white"
-                        : "border-light bg-white text-ink hover:border-ink"
-                    }`}
-                  >
-                    {colour}
-                  </button>
-                ))}
+                {product.colours.map((colour) => {
+                  const hex = colourHex(colour)
+                  return (
+                    <button
+                      type="button"
+                      key={colour}
+                      aria-pressed={form.colour === colour}
+                      onClick={() => set("colour", colour)}
+                      className={`inline-flex items-center gap-2 border px-3 py-2 text-sm transition-colors ${
+                        form.colour === colour
+                          ? "border-ink bg-ink text-white"
+                          : "border-light bg-white text-ink hover:border-ink"
+                      }`}
+                    >
+                      {hex ? (
+                        <span
+                          className="inline-block w-4 h-4 rounded-full border border-black/10 shrink-0"
+                          style={{ backgroundColor: hex }}
+                          aria-hidden="true"
+                        />
+                      ) : null}
+                      {colour}
+                    </button>
+                  )
+                })}
               </div>
             )}
             <input
@@ -422,6 +478,74 @@ export default function OrderModal({
                 +
               </button>
             </div>
+          </div>
+
+          {/* Design reference upload */}
+          <div>
+            <label
+              htmlFor="design-image-input"
+              className="text-xs font-medium tracking-[0.12em] uppercase text-ink block mb-2"
+            >
+              Upload a design reference{" "}
+              <span className="text-muted">(optional)</span>
+            </label>
+            {!form.designImage ? (
+              <button
+                type="button"
+                onClick={() =>
+                  document.getElementById("design-image-input")?.click()
+                }
+                className="w-full border border-dashed border-light bg-white text-ink text-sm px-4 py-8 flex flex-col items-center justify-center gap-2 hover:border-brown transition-colors"
+              >
+                <svg
+                  width="22"
+                  height="22"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                >
+                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                  <polyline points="17 8 12 3 7 8" />
+                  <line x1="12" y1="3" x2="12" y2="15" />
+                </svg>
+                <span>
+                  Tap to upload your preferred design or reference image
+                </span>
+                <span className="text-xs text-muted">
+                  Image file, max 1.4MB
+                </span>
+              </button>
+            ) : (
+              <div className="flex items-center gap-4 bg-white border border-light p-3">
+                <img
+                  src={form.designImage}
+                  alt="Design reference preview"
+                  className="h-20 w-16 object-cover border border-light"
+                />
+                <button
+                  type="button"
+                  onClick={removeDesignImage}
+                  className="text-xs font-medium tracking-[0.12em] uppercase text-red-500 hover:text-red-600 transition-colors"
+                >
+                  Remove image
+                </button>
+              </div>
+            )}
+            <input
+              id="design-image-input"
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              className="hidden"
+              onChange={(e) => readDesignFile(e.target.files?.[0])}
+            />
+            {errors.designImage && (
+              <p className="text-red-500 text-xs mt-1">{errors.designImage}</p>
+            )}
+            <p className="text-muted text-xs mt-1.5">
+              Have a picture of a style you love? Attach it and we'll tailor
+              to that design.
+            </p>
           </div>
 
           {/* Notes */}

@@ -3,9 +3,10 @@
  * Linked to: src/pages/admin/Orders.tsx, src/components/layout/Navbar.tsx, and the order management flow.
  * Note: This file handles the operational heart of customer order processing.
  */
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useParams, useNavigate, Link } from "react-router"
 import { useStore } from "../../context/store"
+import { apiUrl } from "../../lib/api"
 import {
   formatDate,
   buildWhatsAppUrl,
@@ -14,6 +15,7 @@ import {
 } from "../../lib/utils"
 import type { OrderStatus } from "../../types"
 import { WhatsAppIcon } from "../../components/layout/Navbar"
+import Lightbox from "../../components/ui/Lightbox"
 
 const STATUS_NEXT: Record<OrderStatus, {
   action: string
@@ -40,6 +42,31 @@ export default function OrderDetail() {
   const navigate = useNavigate()
   const [actionError, setActionError] = useState("")
   const [updatingStatus, setUpdatingStatus] = useState(false)
+  const [lightboxOpen, setLightboxOpen] = useState(false)
+  const [designImage, setDesignImage] = useState("")
+
+  useEffect(() => {
+    if (!id) return
+
+    let cancelled = false
+    fetch(apiUrl(`/api/admin/orders/${encodeURIComponent(id)}`), {
+      credentials: "include",
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error("Unable to load order details.")
+        return response.json()
+      })
+      .then((result) => {
+        if (!cancelled) setDesignImage(result.designImage || "")
+      })
+      .catch((error) => {
+        console.error("Unable to load order design image:", error)
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [id])
 
   const order = orders.find((o) => o.id === id)
   if (!order) {
@@ -169,6 +196,29 @@ export default function OrderDetail() {
         </div>
       )}
 
+      {designImage && (
+        <div className="bg-white border border-light p-4 mb-8">
+          <p className="text-xs font-medium tracking-[0.12em] uppercase text-muted mb-2">
+            Customer design reference
+          </p>
+          <button
+            type="button"
+            onClick={() => setLightboxOpen(true)}
+            aria-label="View customer design reference"
+            className="block text-left"
+          >
+            <img
+              src={designImage}
+              alt="Customer uploaded design reference"
+              className="max-h-72 w-auto object-contain border border-light"
+            />
+          </button>
+          <p className="text-muted text-xs mt-2">
+            Select the image to view it full screen.
+          </p>
+        </div>
+      )}
+
       {/* Actions */}
       <div className="bg-white border border-light p-6">
         <p className="text-xs font-medium tracking-[0.15em] uppercase text-muted mb-4">
@@ -214,6 +264,13 @@ export default function OrderDetail() {
       <div className="mt-4 text-muted text-xs">
         Last updated: {formatDate(order.updatedAt)}
       </div>
+      {lightboxOpen && designImage && (
+        <Lightbox
+          src={designImage}
+          alt="Customer uploaded design reference"
+          onClose={() => setLightboxOpen(false)}
+        />
+      )}
     </div>
   )
 }

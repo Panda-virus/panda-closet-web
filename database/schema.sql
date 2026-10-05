@@ -89,6 +89,7 @@ CREATE TABLE IF NOT EXISTS orders (
   quantity INTEGER NOT NULL CHECK(quantity > 0),
   contact_preference TEXT NOT NULL DEFAULT 'whatsapp',
   notes TEXT,
+  design_image TEXT,
   status TEXT NOT NULL DEFAULT 'new',
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP

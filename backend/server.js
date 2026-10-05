@@ -496,6 +496,7 @@ const initDatabase = () => {
       quantity INTEGER NOT NULL,
       contact_preference TEXT DEFAULT 'whatsapp',
       notes TEXT,
+      design_image TEXT,
       status TEXT DEFAULT 'new',
       created_at TEXT,
       updated_at TEXT
@@ -539,6 +540,10 @@ const initDatabase = () => {
 
   if (!orderColumns.some((column) => column.name === "location")) {
     db.exec("ALTER TABLE orders ADD COLUMN location TEXT")
+  }
+
+  if (!orderColumns.some((column) => column.name === "design_image")) {
+    db.exec("ALTER TABLE orders ADD COLUMN design_image TEXT")
   }
 
   ensureDefaultSettings()
@@ -1192,6 +1197,20 @@ app.post("/api/orders", async (req, res) => {
     body.contactPreference || body.contact_preference || "whatsapp"
 
   const notes = (body.notes || "").trim()
+  const designImage = typeof body.designImage === "string" ? body.designImage : ""
+
+  if (
+    designImage &&
+    (designImage.length > 1_870_000 ||
+      !/^data:image\/(?:png|jpeg|webp);base64,[A-Za-z0-9+/]+={0,2}$/.test(
+        designImage,
+      ))
+  ) {
+    return res.status(400).json({
+      success: false,
+      message: "Please upload a PNG, JPG, or WEBP image under 1.4 MB.",
+    })
+  }
 
   if (
     !customerName ||
@@ -1262,8 +1281,8 @@ app.post("/api/orders", async (req, res) => {
     INSERT INTO orders (
       id, order_number, customer_name, phone, whatsapp, email, location,
       product_id, product_name_snapshot, product_slug, size, colour, quantity, contact_preference, notes,
-      status, created_at, updated_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      design_image, status, created_at, updated_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(
     orderId,
 
@@ -1294,6 +1313,8 @@ app.post("/api/orders", async (req, res) => {
     contactPreference,
 
     notes,
+
+    designImage,
 
     "new",
 
@@ -1418,6 +1439,8 @@ app.post("/api/orders", async (req, res) => {
       colour,
 
       quantity,
+
+      designImage,
 
       notes,
 
@@ -1990,6 +2013,8 @@ app.get("/api/admin/orders/:id", requireAdmin, (req, res) => {
     quantity: row.quantity,
 
     notes: row.notes,
+
+    designImage: row.design_image || "",
 
     contactPreference: row.contact_preference,
 

@@ -573,6 +573,28 @@ export default {
         )
 
         const quantity = Number(body.quantity || 1)
+        const designImage =
+          typeof body.designImage === "string" ? body.designImage : ""
+
+        if (
+          designImage &&
+          (designImage.length > 1_870_000 ||
+            !/^data:image\/(?:png|jpeg|webp);base64,[A-Za-z0-9+/]+={0,2}$/.test(
+              designImage,
+            ))
+        ) {
+          return withCors(
+            json(
+              {
+                success: false,
+                error: "Please upload a PNG, JPG, or WEBP image under 1.4 MB.",
+              },
+              { status: 400 },
+            ),
+            request,
+            env,
+          )
+        }
 
         if (
           !customerName ||
@@ -649,8 +671,8 @@ export default {
           INSERT INTO orders (
             id, order_number, customer_name, phone, whatsapp, email, location,
             product_id, product_name_snapshot, product_slug, size, colour, quantity, contact_preference,
-            notes, status, created_at, updated_at
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            notes, design_image, status, created_at, updated_at
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `)
           .bind(
             orderId,
@@ -685,6 +707,8 @@ export default {
             ),
 
             sanitizeString(body.notes),
+
+            designImage,
 
             "new",
 
@@ -733,6 +757,8 @@ export default {
                 quantity,
 
                 notes: sanitizeString(body.notes),
+
+                designImage,
 
                 contactPreference: sanitizeString(
                   body.contactPreference ||
@@ -1626,6 +1652,54 @@ export default {
               updatedAt: row.updated_at,
             })),
           ),
+          request,
+          env,
+        )
+      } catch (error) {
+        return proxyD1Error(error)
+      }
+    }
+
+    if (
+      url.pathname.startsWith("/api/admin/orders/") &&
+      request.method === "GET"
+    ) {
+      try {
+        const id = decodeURIComponent(url.pathname.split("/").pop() || "")
+        const row = await env.DB.prepare("SELECT * FROM orders WHERE id = ?")
+          .bind(id)
+          .first()
+
+        if (!row) {
+          return withCors(
+            json({ success: false, error: "Order not found." }, { status: 404 }),
+            request,
+            env,
+          )
+        }
+
+        return withCors(
+          json({
+            id: row.id,
+            orderNumber: row.order_number,
+            customerName: row.customer_name,
+            phone: row.phone,
+            whatsapp: row.whatsapp,
+            email: row.email,
+            location: row.location || "",
+            productId: row.product_id,
+            productName: row.product_name_snapshot,
+            productSlug: row.product_slug || "",
+            size: row.size,
+            colour: row.colour,
+            quantity: row.quantity,
+            notes: row.notes,
+            designImage: row.design_image || "",
+            contactPreference: row.contact_preference,
+            status: row.status,
+            createdAt: row.created_at,
+            updatedAt: row.updated_at,
+          }),
           request,
           env,
         )
