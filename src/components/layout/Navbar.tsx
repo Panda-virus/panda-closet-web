@@ -36,17 +36,14 @@ export default function Navbar() {
           {/* Logo */}
           <Link
             to="/"
-            className="flex items-center gap-2.5 shrink-0 group"
+            className="flex items-center shrink-0 group"
             aria-label="Panda Closet home"
           >
             <img
               src="/panda-closet-logo.png"
               alt="Panda Closet logo"
-              className="h-10 w-auto md:h-12 transition-opacity opacity-100"
+              className="h-12 w-auto md:h-14 transition-opacity opacity-100"
             />
-            <span className="font-serif text-xl md:text-2xl font-semibold tracking-[0.08em] text-ink italic leading-none">
-              Panda Closet
-            </span>
           </Link>
 
           {/* Desktop Nav */}

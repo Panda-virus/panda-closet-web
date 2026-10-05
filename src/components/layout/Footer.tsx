@@ -22,15 +22,16 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
           {/* Brand */}
           <div className="lg:col-span-2">
-            <div className="flex items-center gap-3 mb-3">
+            <div className="mb-3">
               <img
                 src="/panda-closet-logo.png"
                 alt="Panda Closet logo"
-                className="h-12 w-auto object-contain"
+                className="h-16 w-auto object-contain"
+                style={{
+                  filter:
+                    "brightness(0) saturate(100%) invert(83%) sepia(13%) saturate(568%) hue-rotate(347deg) brightness(91%) contrast(86%)",
+                }}
               />
-              <p className="font-serif text-2xl tracking-[0.1em]">
-                PANDA CLOSET
-              </p>
             </div>
             <p className="font-serif italic text-beige text-lg mb-4">
               Tailored with intention.
