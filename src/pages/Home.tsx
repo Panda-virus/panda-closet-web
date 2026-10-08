@@ -4,13 +4,19 @@
  * Note: This is a core storefront page and must remain visually consistent.
  */
 import { Link } from "react-router"
+import { useState } from "react"
 import { useStore } from "../context/store"
-import { buildWhatsAppUrl, customizeWhatsAppMessage } from "../lib/utils"
+import {
+  buildWhatsAppUrl,
+  customizeWhatsAppMessage,
+} from "../lib/utils"
 import ProductCard from "../components/product/ProductCard"
 import { WhatsAppIcon } from "../components/layout/Navbar"
+import DesignRequestModal from "./DesignRequestModal"
 
 export default function Home() {
   const { products, productsLoading, settings } = useStore()
+  const [designRequestOpen, setDesignRequestOpen] = useState(false)
   const featured = products
     .filter((p) => p.featured && p.availability !== "hidden")
     .slice(0, 6)
@@ -18,6 +24,7 @@ export default function Home() {
     settings.whatsappNumber,
     settings.defaultWhatsappMessage,
   )
+
   const waMadeToOrder = buildWhatsAppUrl(
     settings.whatsappNumber,
     customizeWhatsAppMessage(settings.defaultWhatsappMessage, {
@@ -60,43 +67,18 @@ export default function Home() {
             >
               Shop Collection
             </Link>
-            <a
-              href={waUrl}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              type="button"
+              onClick={() => setDesignRequestOpen(true)}
               className="border border-white/60 text-white text-xs font-medium tracking-[0.2em] uppercase px-8 py-4 hover:bg-white/10 transition-colors flex items-center gap-2 min-w-[180px] justify-center"
             >
-              <WhatsAppIcon size={14} />
-              Chat on WhatsApp
-            </a>
+              Request Design
+            </button>
           </div>
         </div>
         {/* Scroll indicator */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
           <div className="w-px h-10 bg-white/30 animate-pulse" />
-        </div>
-      </section>
-
-      {/* INTRO */}
-      <section className="bg-white py-20 lg:py-28">
-        <div className="max-w-[1440px] mx-auto px-6 lg:px-12 text-center">
-          <p className="text-xs font-medium tracking-[0.25em] uppercase text-muted mb-5">
-            The Collection
-          </p>
-          <h2 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-light text-ink mb-6">
-            Made. Tailored. Yours.
-          </h2>
-          <p className="text-muted text-base leading-relaxed max-w-lg mx-auto mb-10">
-            Discover pieces designed and tailored by Panda Closet. Browse our
-            current collection and contact us to order or enquire about an item.
-          </p>
-          <Link
-            to="/shop"
-            className="inline-flex items-center gap-2 text-xs font-medium tracking-[0.2em] uppercase text-ink border-b border-ink pb-1 hover:text-brown hover:border-brown transition-colors"
-          >
-            Explore Collection
-            <span>→</span>
-          </Link>
         </div>
       </section>
 
@@ -289,6 +271,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+      {designRequestOpen && (
+        <DesignRequestModal onClose={() => setDesignRequestOpen(false)} />
+      )}
     </div>
   )
 }
