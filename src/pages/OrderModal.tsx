@@ -17,7 +17,6 @@ import {
   buildWhatsAppUrl,
   buildOrderWhatsAppMessage,
   colourHex,
-  MAX_DESIGN_IMAGE_BYTES,
 } from "../lib/utils"
 
 interface Props {
@@ -48,48 +47,10 @@ export default function OrderModal({
     colour: preselectedColour || "",
     quantity: 1,
     notes: "",
-    designImage: "",
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(false)
   const [submitError, setSubmitError] = useState("")
-
-  const readDesignFile = (file: File | undefined | null) => {
-    setSubmitError("")
-    if (!file) return
-    if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
-      setErrors((e) => ({
-        ...e,
-        designImage: "Please choose a PNG, JPG, or WEBP image.",
-      }))
-      return
-    }
-    if (file.size > MAX_DESIGN_IMAGE_BYTES) {
-      const mb = (MAX_DESIGN_IMAGE_BYTES / 1_000_000).toFixed(1)
-      setErrors((e) => ({
-        ...e,
-        designImage: `That image is too large. Please keep it under ${mb}MB.`,
-      }))
-      return
-    }
-    const reader = new FileReader()
-    reader.onload = () => {
-      set("designImage", String(reader.result || ""))
-      setErrors((e) => ({ ...e, designImage: "" }))
-    }
-    reader.onerror = () => {
-      setErrors((e) => ({
-        ...e,
-        designImage: "Unable to read that image. Please try another one.",
-      }))
-    }
-    reader.readAsDataURL(file)
-  }
-
-  const removeDesignImage = () => {
-    set("designImage", "")
-    setErrors((e) => ({ ...e, designImage: "" }))
-  }
 
   const set = (key: string, value: any) => {
     setForm((f) => ({ ...f, [key]: value }))
@@ -140,10 +101,6 @@ export default function OrderModal({
     setLoading(true)
     setSubmitError("")
     const userNote = form.notes.trim()
-    const designNote = form.designImage
-      ? "📎 A design reference image was attached with this order (visible in the platform)."
-      : ""
-    const notesForOrder = [userNote, designNote].filter(Boolean).join("\n\n")
     const orderData = {
       id: generateId(),
       customerName: form.customerName,
@@ -159,8 +116,7 @@ export default function OrderModal({
           : form.size || undefined,
       colour: form.colour || undefined,
       quantity: form.quantity,
-      notes: notesForOrder || undefined,
-      designImage: form.designImage || undefined,
+      notes: userNote || undefined,
       status: "new" as const,
     }
 
@@ -478,70 +434,6 @@ export default function OrderModal({
                 +
               </button>
             </div>
-          </div>
-
-          {/* Design reference upload */}
-          <div>
-            <label
-              htmlFor="design-image-input"
-              className="text-xs font-medium tracking-[0.12em] uppercase text-ink block mb-2"
-            >
-              Upload a design reference{" "}
-              <span className="text-muted">(optional)</span>
-            </label>
-            {!form.designImage ? (
-              <button
-                type="button"
-                onClick={() =>
-                  document.getElementById("design-image-input")?.click()
-                }
-                className="w-full min-h-12 border border-light bg-white text-ink text-sm px-4 py-3 flex items-center justify-center gap-3 hover:border-brown transition-colors"
-              >
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                >
-                  <rect x="3" y="3" width="18" height="18" rx="2" />
-                  <circle cx="8.5" cy="8.5" r="1.5" />
-                  <path d="m21 15-5-5L5 21" />
-                </svg>
-                <span className="font-medium">Choose preferred design</span>
-                <span className="text-xs text-muted">Optional · max 1.4 MB</span>
-              </button>
-            ) : (
-              <div className="flex items-center gap-4 bg-white border border-light p-3">
-                <img
-                  src={form.designImage}
-                  alt="Design reference preview"
-                  className="h-20 w-16 object-cover border border-light"
-                />
-                <button
-                  type="button"
-                  onClick={removeDesignImage}
-                  className="text-xs font-medium tracking-[0.12em] uppercase text-red-500 hover:text-red-600 transition-colors"
-                >
-                  Remove image
-                </button>
-              </div>
-            )}
-            <input
-              id="design-image-input"
-              type="file"
-              accept="image/png,image/jpeg,image/webp"
-              className="hidden"
-              onChange={(e) => readDesignFile(e.target.files?.[0])}
-            />
-            {errors.designImage && (
-              <p className="text-red-500 text-xs mt-1">{errors.designImage}</p>
-            )}
-            <p className="text-muted text-xs mt-1.5">
-              Have a picture of a style you love? Attach it and we'll tailor
-              to that design.
-            </p>
           </div>
 
           {/* Notes */}
